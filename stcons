@@ -3,7 +3,8 @@
 source $(dirname $0)/config.sh
 
 function usage {
-	echo "USAGE: $(basename $0) app configfile -d"
+	echo "USAGE: $(basename $0) app configfile [-d]"
+	echo "  -d: doit: overwrites the existing default/<configfile>.conf file and deletes the local/<configfile>.conf file"
 	exit 1
 }
 
