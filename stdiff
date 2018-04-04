@@ -1,0 +1,55 @@
+#!/bin/bash
+
+source $(dirname $0)/config.sh
+
+function usage {
+	echo "USAGE: $(basename $0) app configfile"
+	exit 1
+}
+
+# Arguments
+if [ $# -lt 2 ]; then
+	usage
+fi
+APP="$1"
+CFG="$2"
+
+TMP=$(mktemp -d -t "$(basename $0)")
+ML=0
+
+while read line
+do
+	if echo "$line" | grep "^${SPLHOME}" >/dev/null; then
+		ML=0
+		line=$(echo $line | sed -E "s,.*/([^/]+)/${CFG}\.conf(.*),\1 \2,g")
+		F=$(echo $line | cut -d' ' -f 1)
+		C=$(echo $line | cut -d' ' -f 2-)
+	else
+		ML=1
+		C=$line
+	fi
+	if [ "${F}" != "local" ]; then
+		# write config before local changes
+		if [ $ML -eq 0 ]; then
+			echo "${C}" | sed -e $'s,^\[,\\\n\[,' >> "${TMP}/_${CFG}.conf"
+		else
+			echo "${C}" >> "${TMP}/_${CFG}.conf"
+		fi
+	fi
+	# write new whole config
+	if [ $ML -eq 0 ]; then
+		echo "${C}" | sed -e $'s,^\[,\\\n\[,' >> "${TMP}/${CFG}.conf"
+	else
+		echo "${C}" >> "${TMP}/${CFG}.conf"
+	fi
+done < <($BT "${CFG}" list --app="${APP}" --debug-print=sourcefile)
+
+#diff -y "${TMP}/${CFG}.conf" "${TMP}/_${CFG}.conf" | grep " <$" | less
+{
+while read out
+do
+	echo -e "$(echo $out | sed -E 's,([^ ]+) = (.*),\\033\[0;32m\1\\033\[0m = \2,' | sed -E 's,^\[(.*)\]$,\[\\033\[1;35m\1\\033\[0m\],')"
+done < <(diff -u "${TMP}/_${CFG}.conf" "${TMP}/${CFG}.conf" | grep -E "^\+" | sed -e 's,^\+,,')
+} | less -r
+
+rm -rf ${TMP}
