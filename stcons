@@ -3,7 +3,7 @@
 source $(dirname $0)/config.sh
 
 function usage {
-	echo "USAGE: $(basename $0) app configfile"
+	echo "USAGE: $(basename $0) app configfile -d"
 	exit 1
 }
 
@@ -13,8 +13,12 @@ if [ $# -lt 2 ]; then
 fi
 APP="$1"
 CFG="$2"
+DOIT=0
+if [ "$3" == "-d" ]; then
+	DOIT=1	
+fi
 
-TMP=$(mktemp -d -t "$(basename $0)")
+TMP=$(mktemp -d)
 TS=$(date +%Y%m%d%H%M%S)
 
 echo -n "Creating new consolidated default config ${CFG}.conf..."
@@ -41,25 +45,29 @@ done< <($BT "${CFG}" list --app="${APP}" --debug-print=sourcefile | sed -e 's,\\
 } > "${TMP}/${CFG}.conf"
 echo -e "\033[0;32mDONE\033[0m"
 
-echo -n "Creating backup ${APP}/default/${CFG}.conf -> ${APP}/default/${CFG}.conf-${TS}..."
-if MSG=$(mv "${SPLAPPS}/${APP}/default/${CFG}.conf" "${SPLAPPS}/${APP}/default/${CFG}.conf-${TS}" 2>&1); then
-	echo -e "\033[0;32mDONE\033[0m"
+if [ $DOIT -eq 1 ]; then
+	echo -n "Creating backup ${APP}/default/${CFG}.conf -> ${APP}/default/${CFG}.conf-${TS}..."
+	if MSG=$(mv "${SPLAPPS}/${APP}/default/${CFG}.conf" "${SPLAPPS}/${APP}/default/${CFG}.conf-${TS}" 2>&1); then
+		echo -e "\033[0;32mDONE\033[0m"
+	else
+		echo -e "\033[0;31m\nERROR: ${MSG}\033[0m"
+	fi
+
+	echo -n "Creating backup ${APP}/local/${CFG}.conf -> ${APP}/local/${CFG}.conf-${TS}..."
+	if MSG=$(mv "${SPLAPPS}/${APP}/local/${CFG}.conf" "${SPLAPPS}/${APP}/local/${CFG}.conf-${TS}" 2>&1); then
+		echo -e "\033[0;32mDONE\033[0m"
+	else
+		echo -e "\033[0;31m\nERROR: ${MSG}\033[0m"
+	fi
+
+	echo -n "Replacing the original default config ${CFG}.conf..."
+	if MSG=$(cp "${TMP}/${CFG}.conf" "${SPLAPPS}/${APP}/default/${CFG}.conf" 2>&1); then
+		echo -e "\033[0;32mDONE\033[0m"
+	else
+		echo -e "\033[0;31m\nERROR: ${MSG}\033[0m"
+	fi
+	rm -rf ${TMP}
 else
-	echo -e "\033[0;31m\nERROR: ${MSG}\033[0m"
+	echo "File is at ${TMP}"
 fi
 
-echo -n "Creating backup ${APP}/local/${CFG}.conf -> ${APP}/local/${CFG}.conf-${TS}..."
-if MSG=$(mv "${SPLAPPS}/${APP}/local/${CFG}.conf" "${SPLAPPS}/${APP}/local/${CFG}.conf-${TS}" 2>&1); then
-	echo -e "\033[0;32mDONE\033[0m"
-else
-	echo -e "\033[0;31m\nERROR: ${MSG}\033[0m"
-fi
-
-echo -n "Replacing the original default config ${CFG}.conf..."
-if MSG=$(cp "${TMP}/${CFG}.conf" "${SPLAPPS}/${APP}/default/${CFG}.conf" 2>&1); then
-	echo -e "\033[0;32mDONE\033[0m"
-else
-	echo -e "\033[0;31m\nERROR: ${MSG}\033[0m"
-fi
-
-rm -rf ${TMP}
