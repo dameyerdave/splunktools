@@ -4,4 +4,4 @@ DIR=$(cd $(dirname $0); pwd -P)
 source ${DIR}/config.sh
 source ${DIR}/include.sh
 
-tail -f ${SPLHOME}/var/log/splunk/splunkd.log | colorize_log
+tail -F ${SPLHOME}/var/log/splunk/splunkd.log ${SPLHOME}/var/log/splunk/notable_modalert.log | colorize_log

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+DIR=$(cd $(dirname $0); pwd -P)
+source ${DIR}/config.sh
+source ${DIR}/include.sh
+
+function usage {
+	echo "USAGE: $(basename $0) search_string -o"
+	exit 1
+}
+
+OPEN=0
+if [ "$2" == "-o" ]; then
+	OPEN=1
+fi
+
+if [ $# -lt 1 ]; then
+	usage
+fi
+
+tmp=$(mktemp)
+while read file
+do
+	if grep "$1" "$file" 2>&1 >/dev/null; then
+		if [ $OPEN -eq 1 ]; then
+			echo "vi '$file' -c ':/$1'" >> $tmp
+		else
+			echo $file
+		fi
+	fi
+done< <(find ${SPLAPPS} -type f -name "*.conf")
+
+sh $tmp
+rm -rf $tmp
