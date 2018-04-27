@@ -6,6 +6,7 @@ source ${DIR}/include.sh
 
 function usage {
 	echo "USAGE: $(basename $0) app configfile"
+	echo "EXAMPLE: $(basename $0) DA-ESS-tacSecMonUseCases savedsearches"
 	exit 1
 }
 
