@@ -19,7 +19,7 @@ APP="$1"
 CFG="$2"
 DOIT=0
 if [ "$3" == "-d" ]; then
-	DOIT=1	
+	DOIT=1
 fi
 
 TMP=$(mktemp -d)
@@ -31,19 +31,22 @@ first=1
 while read line
 do
 	if [ "${line:0:1}" == "/" ]; then
+		out="$(echo "$line" | cut -d' ' -f 2- | sed -E 's,^[[:space:]]+,,')"
+		if echo "${out}" | grep -e "^disabled =" 2>&1 >/dev/null; then
+			continue
+		fi
 		if [ $first -eq 0 ]; then
 			printf "\n"
 		fi
-		out="$(echo "$line" | cut -d' ' -f 2- | sed -E 's,^[[:space:]]+,,')"
 		if [ $first -eq 0 -a "${out:0:1}" == "[" ]; then
 			printf "\n%s" "$out"
 		else
-			printf "%s" "$out" 
+			printf "%s" "$out"
 		fi
 	else
 		printf " \\\\\n"
 		printf "%s" "$line"
-	fi		
+	fi
 	first=0
 done< <($BT "${CFG}" list --app="${APP}" --debug-print=sourcefile | sed -e 's,\\,\\\\,g')
 } > "${TMP}/${CFG}.conf"
@@ -74,4 +77,3 @@ if [ $DOIT -eq 1 ]; then
 else
 	echo "File is at ${TMP}"
 fi
-
