@@ -6,12 +6,6 @@ source ${DIR}/include.sh
 
 LOGS=''
 
-if [ -f ${SPLHOME}/var/log/splunk/splunkd.log ]; then
-  LOGS+=" ${SPLHOME}/var/log/splunk/splunkd.log"
-fi
-if [ -f ${SPLHOME}/var/log/splunk/notable_modalert.log ]; then
-  LOGS+=" ${SPLHOME}/var/log/splunk/notable_modalert.log"
-fi
 if [ -f ${SPLHOME}/var/log/splunk/splunkd_ui_access.log ]; then
   LOGS+=" ${SPLHOME}/var/log/splunk/splunkd_ui_access.log"
 fi
@@ -29,6 +23,12 @@ if [ -f ${SPLHOME}/var/log/splunk/conf.log ]; then
 fi
 if [ -f ${SPLHOME}/var/log/splunk/splunkd_stderr.log ]; then
   LOGS+=" ${SPLHOME}/var/log/splunk/splunkd_stderr.log"
+fi
+if [ -f ${SPLHOME}/var/log/splunk/notable_modalert.log ]; then
+  LOGS+=" ${SPLHOME}/var/log/splunk/notable_modalert.log"
+fi
+if [ -f ${SPLHOME}/var/log/splunk/splunkd.log ]; then
+  LOGS+=" ${SPLHOME}/var/log/splunk/splunkd.log"
 fi
 
 tail -F ${LOGS} | colorize_log
