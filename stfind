@@ -21,14 +21,16 @@ fi
 tmp=$(mktemp)
 while read file
 do
-	if grep "$1" "$file" 2>&1 >/dev/null; then
+	if grep -E "$1" "$file" 2>&1 >/dev/null; then
 		if [ $OPEN -eq 1 ]; then
 			echo "vi '$file' -c ':/$1'" >> $tmp
 		else
 			echo $file
 		fi
 	fi
-done< <(find ${SPLAPPS} -type f -name "*.conf")
+done< <(find ${SPLHOME}/etc -type f -name "*.conf")
 
-sh $tmp
+if [ $OPEN -eq 1 ]; then
+	sh $tmp
+fi
 rm -rf $tmp
