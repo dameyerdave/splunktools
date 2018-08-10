@@ -1,0 +1,13 @@
+#!/bin/bash
+
+DIR=$(cd $(dirname $0); pwd -P)
+source ${DIR}/config.sh
+source ${DIR}/include.sh
+
+function usage {
+  echo "USAGE $(basename $0)"
+  exit 1
+}
+
+GUID=$(cat $SPLHOME/etc/instance.cfg | grep -E "^guid" | cut -d '=' -f 2 | tr -d ' ')
+printf "%-10s: %s\n" "GUID:" "$GUID"
