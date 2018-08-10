@@ -18,7 +18,7 @@ app="$2"
 target="$3"
 
 if [ "${action}" == "add" -o "${action}" == "update" ]; then
-	scp -r ${SPLHOME}/etc/apps/${app} ${target}:${SPLHOME}/etc/apps/.
+	scp -r ${SPLHOME}/etc/deployment-apps/${app} ${target}:${SPLHOME}/etc/apps/.
 elif [ "${action}" == "remove" ]; then
 	ssh ${target} "rm -rf ${SPLHOME}/etc/apps/${app}"
 else
