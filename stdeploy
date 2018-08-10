@@ -5,7 +5,8 @@ source ${DIR}/config.sh
 source ${DIR}/include.sh
 
 function usage {
-  echo "USAGE $(basename $0) add|remove|update app host"
+  echo "USAGE $(basename $0) add|remove|update app target [-r]"
+  echo " -r: restart splunk on target"
   exit 1
 }
 
@@ -16,11 +17,16 @@ fi
 action="$1"
 app="$2"
 target="$3"
+if [ "$4" == "-r" ];
+	restart=1
+fi
 
 if [ "${action}" == "add" -o "${action}" == "update" ]; then
 	scp -r ${SPLHOME}/etc/deployment-apps/${app} ${target}:${SPLHOME}/etc/apps/.
+	test $restart -eq 1 && ssh ${target} "${SPLHOME}/bin/splunk restart"
 elif [ "${action}" == "remove" ]; then
 	ssh ${target} "rm -rf ${SPLHOME}/etc/apps/${app}"
+	test $restart -eq 1 && ssh ${target} "${SPLHOME}/bin/splunk restart"
 else
   usage
 fi
