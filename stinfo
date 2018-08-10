@@ -9,5 +9,29 @@ function usage {
   exit 1
 }
 
+function auth_fail {
+	echo "Login to Splunk failed"
+    rm -f $DIR/.sessionkey
+    rm -f $DIR/.error
+    exit 1
+}
+
 GUID=$(cat $SPLHOME/etc/instance.cfg | grep -E "^guid" | cut -d '=' -f 2 | tr -d ' ')
 printf "%-10s: %s\n" "GUID:" "$GUID"
+if [ ! -f $DIR/.sessionkey ]; then
+	read -p "Username: " USER
+	read -sp "Password: " PW
+	echo ""
+	SESSION_KEY=$(curl -sk 'https://localhost:8089/services/auth/login?output_mode=json' --data-urlencode username="$USER" --data-urlencode password="$PW" | jq -r '.sessionKey')
+	echo "$SESSION_KEY" > $DIR/.sessionkey
+else
+	SESSION_KEY=$(cat $DIR/.sessionkey)
+fi
+if [ "$SESSION_KEY" == "null" ]; then
+	auth_fail
+fi
+ROLES=$(curl -sk  -H "Authorization: Splunk $SESSION_KEY" https://localhost:8089/services/server/roles?output_mode=json | jq -r '.entry[0].content.role_list | .[]' 2>$DIR/.error | tr '\n' ',' | sed -e 's/,$//')
+if [ ! -s $DIR/.error ]; then
+	auth_fail	
+fi
+printf "%-10s: %s\n" "Roles" "$ROLES"
