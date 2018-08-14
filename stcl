@@ -5,7 +5,7 @@ source ${DIR}/config.sh
 source ${DIR}/include.sh
 
 function usage {
-  echo "USAGE $(basename $0) validate | apply | show"
+  echo "USAGE $(basename $0) validate | apply | show [-w]"
   exit 1
 }
 
@@ -14,13 +14,25 @@ if [ $# -lt 1 ]; then
 fi
 
 action="$1"
+watch=0
+if [ "$2" == "-w" ]; then
+  watch=1
+fi
 
 if [ "${action}" == "validate" ]; then
   ${SPL} validate cluster-bundle
 elif [ "${action}" == "apply" ]; then
  ${SPL} apply cluster-bundle
 elif [ "${action}" == "show" ]; then
-  ${SPL} show cluster-bundle-status
+  if [ $watch -eq 1 ]; then
+    while true; do
+      clear
+      ${SPL} show cluster-bundle-status
+      sleep 2
+    done
+  else
+    ${SPL} show cluster-bundle-status
+  fi
 else
   usage
 fi
