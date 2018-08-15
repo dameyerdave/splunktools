@@ -17,21 +17,21 @@ function auth_fail {
 }
 
 function query {
-  curl -sk -H "Authorization: Splunk $SESSION_KEY" "https://localhost:8089${1}?output_mode=json" | jq -r "${2}" 2>$DIR/.error
+  curl -sk -H "Authorization: Splunk $SESSION_KEY" "https://localhost:${MGMTPORT}${1}?output_mode=json" | jq -r "${2}" 2>$DIR/.error
   if [ -s $DIR/.error ]; then
   	auth_fail
   fi
 }
 
 function out {
-  printf "%-15s: %s\n" "${1}" "${2}"
+  printf "%-18s: %s\n" "${1}" "${2}"
 }
 
 if [ ! -f $DIR/.sessionkey ]; then
 	read -p "Username: " USER
 	read -sp "Password: " PW
 	echo ""
-	SESSION_KEY=$(curl -sk 'https://localhost:8089/services/auth/login?output_mode=json' --data-urlencode username="$USER" --data-urlencode password="$PW" | jq -r '.sessionKey')
+	SESSION_KEY=$(curl -sk "https://localhost:${MGMTPORT}/services/auth/login?output_mode=json" --data-urlencode username="$USER" --data-urlencode password="$PW" | jq -r '.sessionKey')
 	echo "$SESSION_KEY" > $DIR/.sessionkey
 else
 	SESSION_KEY=$(cat $DIR/.sessionkey)
@@ -42,6 +42,10 @@ fi
 
 GUID=$(cat $SPLHOME/etc/instance.cfg | grep -E "^guid" | cut -d '=' -f 2 | tr -d ' ')
 out "GUID:" "$GUID"
+HOST=$(query "/services/server/settings" '.entry[0] | .content.host')
+out "Host" "$HOST"
+SN=$(query "/services/server/settings" '.entry[0] | .content.serverName')
+out "Server Name" "$SN"
 ROLES=$(query "/services/server/roles" '.entry[0].content.role_list | join(", ")')
 out "Roles" "$ROLES"
 WEBPORT=$(query "/services/server/settings" '.entry[0] | .content.httpport')
@@ -50,6 +54,8 @@ MGMTPORT=$(query "/services/server/settings" '.entry[0] | .content.mgmtHostPort'
 out "Mgmt Port" "$MGMTPORT"
 KVPORT=$(query "/services/server/settings" '.entry[0] | .content.kvStorePort')
 out "KV Store Port" "$KVPORT"
+KVDIS=$(query "/services/server/settings" '.entry[0] | .content.kvStoreDisabled')
+out "KV Store Disabled" "$KVDIS"
 SPLHOME=$(query "/services/server/settings" '.entry[0] | .content.SPLUNK_HOME')
 out "Splunk Home" "$SPLHOME"
 SPLDB=$(query "/services/server/settings" '.entry[0] | .content.SPLUNK_DB')

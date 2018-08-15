@@ -9,3 +9,6 @@ SPL="${SPLHOME}/bin/splunk"
 
 # Shortcut for btool
 BT="${SPL} btool"
+
+# Management Port
+MGMTPORT=8089
