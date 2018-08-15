@@ -4,6 +4,8 @@ DIR=$(cd $(dirname $0); pwd -P)
 source ${DIR}/config.sh
 source ${DIR}/include.sh
 
+JQ="${DIR}/jq"
+
 function usage {
   echo "USAGE $(basename $0) cli | edit | reload"
   exit 1
@@ -46,14 +48,14 @@ if [ "${action}" == "cli" ]; then
     fi
     if echo $line | grep "applications:" 2>&1 >/dev/null; then
       _apps=$(echo $line | sed -E 's,.*applications: ,,g' | sed -E "s,'',,g" | sed -E "s,',\\\",g" | sed -E 's,None,\"None\",g')
-      APPS=$(echo $_apps | jq -r 'keys_unsorted | join(" ")')
-      APPCLS=$(echo $_apps | jq -r '[ .[] | .serverclasses | join(",") ] | join(" ")')
-      FAIL=$(echo $_apps | jq -r '[ .[] | if .result != "Ok" then .failedReason else .result end ] | join(" ")')
+      APPS=$(echo $_apps | ${JQ} -r 'keys_unsorted | join(" ")')
+      APPCLS=$(echo $_apps | ${JQ} -r '[ .[] | .serverclasses | join(",") ] | join(" ")')
+      FAIL=$(echo $_apps | ${JQ} -r '[ .[] | if .result != "Ok" then .failedReason else .result end ] | join(" ")')
     fi
     if echo $line | grep "serverClasses:" 2>&1 >/dev/null; then
       CLASSES=$(echo $line | sed -E 's,.*serverClasses: ,,g')
       if [ "$CLASSES" != "None" ]; then
-        CLASSES=$(echo "${CLASSES}" | sed -E "s,',\\\",g" | sed -E 's,None,\"None\",g' | jq -r 'keys | join(", ")')
+        CLASSES=$(echo "${CLASSES}" | sed -E "s,',\\\",g" | sed -E 's,None,\"None\",g' | ${JQ} -r 'keys | join(", ")')
       fi
     fi
     if echo $line | grep "Deployment client:" 2>&1 >/dev/null; then
