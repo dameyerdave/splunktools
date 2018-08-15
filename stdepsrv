@@ -11,7 +11,7 @@ function usage {
 
 function out {
   test "$CN" == "" && return
-  printf "\n\e[1;36m%-36s [ %s, %s\e[0m ]\n" "${CN}" "${HN}" "${DNS}"
+  printf "\n\e[1;36m%-36s [ %s, %s ]\e[0m\n" "${CN}" "${HN}" "${DNS}"
   printf "%-3s: %-20s\n" "CLS" "${CLASSES}"
   read -ra _apps <<< "$APPS"
   read -ra _fail <<< "$FAIL"
