@@ -5,7 +5,7 @@ source ${DIR}/config.sh
 source ${DIR}/include.sh
 
 function usage {
-  echo "USAGE $(basename $0) clients | edit | reload"
+  echo "USAGE $(basename $0) cli | edit | reload"
   exit 1
 }
 
@@ -28,7 +28,7 @@ fi
 action="$1"
 CN=''; HN='HOSTNAME'; DNS='DNS'; CLASSES='CLASSES'; APPS='APPS'; FAIL='STATUS'
 
-if [ "${action}" == "clients" ]; then
+if [ "${action}" == "cli" ]; then
   while read line
   do
     if echo $line | grep "clientName:" 2>&1 >/dev/null; then
