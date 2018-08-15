@@ -10,11 +10,13 @@ function usage {
 }
 
 function out {
-  printf "%-36s | %-20s | %-20s | %s\n" "${CN}" "${HN}" "${DNS}" "${CLASSES}"
+  test "$CN" == "" && return
+  printf "\n\e[1;36m%-36s [ %s, %s\e[0m ]\n" "${CN}" "${HN}" "${DNS}"
+  printf "%-3s: %-20s\n" "CLS" "${CLASSES}"
   read -ra _apps <<< "$APPS"
   read -ra _fail <<< "$FAIL"
-  for i in "${_apps[@]}"; do
-    printf "%-36s | %-20s | %s" "" "${_apps[$i]}" "${_fail[$i]}"
+  for i in "${!_apps[@]}"; do
+    printf "%-3s + %-20s: %s\n" "" "${_apps[$i]}" "${_fail[$i]}"
   done
   CN=''; HN=''; DNS=''; APPS=''; CLASSES=''; FAIL=''
 }
@@ -24,7 +26,7 @@ if [ $# -lt 1 ]; then
 fi
 
 action="$1"
-CN='CLIENT'; HN='HOSTNAME'; DNS='DNS'; CLASSES='CLASSES'; APPS='APPS'; FAIL='STATUS'
+CN=''; HN='HOSTNAME'; DNS='DNS'; CLASSES='CLASSES'; APPS='APPS'; FAIL='STATUS'
 
 if [ "${action}" == "clients" ]; then
   while read line
@@ -46,7 +48,7 @@ if [ "${action}" == "clients" ]; then
     if echo $line | grep "serverClasses:" 2>&1 >/dev/null; then
       CLASSES=$(echo $line | sed -E 's,.*serverClasses: ,,g')
       if [ "$CLASSES" != "None" ]; then
-        CLASSES=$(echo "${CLASSES}" | sed -E "s,',\\\",g" | sed -E 's,None,\"None\",g' | jq -r 'keys | join(" ")')
+        CLASSES=$(echo "${CLASSES}" | sed -E "s,',\\\",g" | sed -E 's,None,\"None\",g' | jq -r 'keys | join(", ")')
       fi
     fi
     if echo $line | grep "Deployment client:" 2>&1 >/dev/null; then
