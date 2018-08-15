@@ -10,7 +10,12 @@ function usage {
 }
 
 function out {
-  printf "%-36s | %-20s | %-20s | %-40s | %-40s | %s\n" "${CN}" "${HN}" "${DNS}" "${CLASSES}" "${APPS}" "${FAIL}"
+  printf "%-36s | %-20s | %-20s | %s\n" "${CN}" "${HN}" "${DNS}" "${CLASSES}"
+  read -ra _apps <<< "$APPS"
+  read -ra _fail <<< "$FAIL"
+  for i in "${_apps[@]}"; do
+    printf "%-36s | %-20s | %-20s | %s\n" "" "${_apps[$i]}" "${_fail[$i]}"
+  done
   CN=''; HN=''; DNS=''; APPS=''; CLASSES=''; FAIL=''
 }
 
@@ -35,13 +40,13 @@ if [ "${action}" == "clients" ]; then
     fi
     if echo $line | grep "applications:" 2>&1 >/dev/null; then
       _apps=$(echo $line | sed -E 's,.*applications: ,,g' | sed -E "s,'',,g" | sed -E "s,',\\\",g" | sed -E 's,None,\"None\",g')
-      APPS=$(echo $_apps | jq -r 'keys | join(", ")')
-      FAIL=$(echo $_apps | jq -r '[ .[] | if .result != "Ok" then .failedReason else .result end ] | join(", ")')
+      APPS=$(echo $_apps | jq -r 'keys | join(" ")')
+      FAIL=$(echo $_apps | jq -r '[ .[] | if .result != "Ok" then .failedReason else .result end ] | join(" ")')
     fi
     if echo $line | grep "serverClasses:" 2>&1 >/dev/null; then
       CLASSES=$(echo $line | sed -E 's,.*serverClasses: ,,g')
       if [ "$CLASSES" != "None" ]; then
-        CLASSES=$(echo "${CLASSES}" | sed -E "s,',\\\",g" | sed -E 's,None,\"None\",g' | jq -r 'keys | join(", ")')
+        CLASSES=$(echo "${CLASSES}" | sed -E "s,',\\\",g" | sed -E 's,None,\"None\",g' | jq -r 'keys | join(" ")')
       fi
     fi
     if echo $line | grep "Deployment client:" 2>&1 >/dev/null; then
