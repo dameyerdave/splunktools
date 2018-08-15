@@ -5,7 +5,7 @@ source ${DIR}/config.sh
 source ${DIR}/include.sh
 
 function usage {
-  echo "USAGE $(basename $0) clients"
+  echo "USAGE $(basename $0) clients | edit | reload"
   exit 1
 }
 
@@ -49,7 +49,11 @@ if [ "${action}" == "clients" ]; then
   out
 elif [ "${action}" == "edit" ]; then
   vi ${SPLHOME}/etc/system/local/serverclass.conf
-  ${SPL} btool check
+  if ${SPL} btool check; then
+    echo "Config is valid."
+  else
+    echo "Errors in config!"
+  fi
 elif [ "${action}" == "reload" ]; then
   if ${SPL} btool check; then
     ${SPL} reload deploy-server

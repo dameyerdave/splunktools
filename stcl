@@ -5,7 +5,7 @@ source ${DIR}/config.sh
 source ${DIR}/include.sh
 
 function usage {
-  echo "USAGE $(basename $0) validate | apply | show [-w]"
+  echo "USAGE $(basename $0) status | validate | apply | show [-w]"
   exit 1
 }
 
