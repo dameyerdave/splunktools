@@ -1,0 +1,54 @@
+#!/bin/bash
+
+DIR=$(cd $(dirname $0); pwd -P)
+source ${DIR}/config.sh
+source ${DIR}/include.sh
+
+function usage {
+  echo "USAGE $(basename $0) csr"
+  echo "USAGE $(basename $0) chain key cert"
+  echo "USAGE $(basename $0) info"
+  exit 1
+}
+
+if [ $# -lt 1 ]; then
+  usage
+fi
+
+action="$1"
+HN=$(hostname -f)
+OSSL="${SPL} cmd openssl"
+
+if [ "${action}" == "csr" ]; then
+  mkdir -p ${CERTDIR}
+  ${OSSL} dhparam -out ${CERTDIR}/dhparam.pem 2048 &
+  ${OSSL} genrsa -aes256 -passout pass:1234 -out ${CERTDIR}/${HN}.key
+  ${OSSL} rsa -in ${CERTDIR}/${HN}.key -passin pass:1234 -out ${CERTDIR}/${HN}.key
+  chmod 400 ${CERTDIR}/${HN}.key
+  ${OSSL} req -key ${CERTDIR}/${HN}.key -new -sha256 -subj "${CERTSUBJ}" -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf "[SAN]\nsubjectAltName=${CERTALT}")) -out ${CERTDIR}/${HN}.csr
+elif [ "${action}" == "chain" -a "$2" != "" -a "$3" != "" ]; then
+  cat "$2" "$3" > ${CERTDIR}/server.pem
+  chmod 400 ${CERTDIR}/server.pem
+elif [ "${action}" == "info" ]; then
+  echo "Information about the required certificates"
+  echo "==========================================="
+  echo ""
+  echo "server.pem"
+  echo "-----BEGIN RSA PRIVATE KEY----- [ Server's SSL certificate key ]"
+  echo "-----BEGIN CERTIFICATE----      [ Server's SSL certificate ]"
+  echo ""
+  echo "ca.pem"
+  echo "-----BEGIN CERTIFICATE---- [ Root certificate, if required ]"
+  echo "-----BEGIN CERTIFICATE---- [ One or more intermediate certificates, if required ]"
+  echo ""
+  echo "splunkweb.pem"
+  echo "-----BEGIN CERTIFICATE---- [ Server's SSL certificate ]"
+  echo "-----BEGIN CERTIFICATE---- [ One or more intermediate certificates, if required ]"
+  echo "-----BEGIN CERTIFICATE---- [ Root certificate, if required ]"
+  echo ""
+  echo "splunkweb.key"
+  echo "-----BEGIN RSA PRIVATE KEY----- [ Server's SSL certificate key ]"
+  echo ""
+else
+  usage
+fi
