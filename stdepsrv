@@ -46,7 +46,7 @@ if [ "${action}" == "cli" ]; then
     fi
     if echo $line | grep "applications:" 2>&1 >/dev/null; then
       _apps=$(echo $line | sed -E 's,.*applications: ,,g' | sed -E "s,'',,g" | sed -E "s,',\\\",g" | sed -E 's,None,\"None\",g')
-      APPS=$(echo $_apps | jq -r 'keys | join(" ")')
+      APPS=$(echo $_apps | jq -r 'keys_unsorted | join(" ")')
       APPCLS=$(echo $_apps | jq -r '[ .[] | .serverclasses | join(",") ] | join(" ")')
       FAIL=$(echo $_apps | jq -r '[ .[] | if .result != "Ok" then .failedReason else .result end ] | join(" ")')
     fi
