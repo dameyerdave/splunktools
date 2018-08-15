@@ -11,13 +11,22 @@ function usage {
 
 function auth_fail {
 	echo "Login to Splunk failed"
-    rm -f $DIR/.sessionkey
-    rm -f $DIR/.error
-    exit 1
+  rm -f $DIR/.sessionkey
+  rm -f $DIR/.error
+  exit 1
 }
 
-GUID=$(cat $SPLHOME/etc/instance.cfg | grep -E "^guid" | cut -d '=' -f 2 | tr -d ' ')
-printf "%-10s: %s\n" "GUID:" "$GUID"
+function query {
+  curl -sk -H "Authorization: Splunk $SESSION_KEY" "https://localhost:8089${1}?output_mode=json" | jq -r "${2}" 2>$DIR/.error
+  if [ -s $DIR/.error ]; then
+  	auth_fail
+  fi
+}
+
+function out {
+  printf "%-15s: %s\n" "${1}" "${2}"
+}
+
 if [ ! -f $DIR/.sessionkey ]; then
 	read -p "Username: " USER
 	read -sp "Password: " PW
@@ -27,11 +36,21 @@ if [ ! -f $DIR/.sessionkey ]; then
 else
 	SESSION_KEY=$(cat $DIR/.sessionkey)
 fi
-if [ "$SESSION_KEY" == "null" ]; then
+if [ "$SESSION_KEY" == "null" -o ! -s $DIR/.sessionkey ]; then
 	auth_fail
 fi
-ROLES=$(curl -sk  -H "Authorization: Splunk $SESSION_KEY" https://localhost:8089/services/server/roles?output_mode=json | jq -r '.entry[0].content.role_list | .[]' 2>$DIR/.error | tr '\n' ',' | sed -e 's/,$//')
-if [ ! -s $DIR/.error ]; then
-	auth_fail	
-fi
-printf "%-10s: %s\n" "Roles" "$ROLES"
+
+GUID=$(cat $SPLHOME/etc/instance.cfg | grep -E "^guid" | cut -d '=' -f 2 | tr -d ' ')
+out "GUID:" "$GUID"
+ROLES=$(query "/services/server/roles" '.entry[0].content.role_list | join(", ")')
+out "Roles" "$ROLES"
+WEBPORT=$(query "/services/server/settings" '.entry[0] | .content.httpport')
+out "Web Port" "$WEBPORT"
+MGMTPORT=$(query "/services/server/settings" '.entry[0] | .content.mgmtHostPort')
+out "Mgmt Port" "$MGMTPORT"
+KVPORT=$(query "/services/server/settings" '.entry[0] | .content.kvStorePort')
+out "KV Store Port" "$KVPORT"
+SPLHOME=$(query "/services/server/settings" '.entry[0] | .content.SPLUNK_HOME')
+out "Splunk Home" "$SPLHOME"
+SPLDB=$(query "/services/server/settings" '.entry[0] | .content.SPLUNK_DB')
+out "Splunk DB" "$SPLDB"
