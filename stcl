@@ -19,7 +19,9 @@ if [ "$2" == "-w" ]; then
   watch=1
 fi
 
-if [ "${action}" == "validate" ]; then
+if [ "${action}" == "status" ]; then
+  ${SPL} show cluster-status
+elif [ "${action}" == "validate" ]; then
   ${SPL} validate cluster-bundle
 elif [ "${action}" == "apply" ]; then
  ${SPL} apply cluster-bundle
