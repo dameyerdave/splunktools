@@ -13,8 +13,8 @@ BT="${SPL} btool"
 # Certificates directory
 CERTDIR="${SPLHOME}/etc/certs"
 
-# Certificate Subject
-CERTSUBJ="/C=CH/ST=CH/O=Company/CN=$(hostname -f)"
+# Certificate subject
+CERTSUBJ="/C=CH/ST=CH/L=Place/O=Company/CN=$(hostname -f)"
 
 # Certificate alternative names
 CERTALT="DNS:$(hostname),DNS:$(hostname -f)"
