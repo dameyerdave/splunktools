@@ -34,8 +34,9 @@ if [ "${action}" == "clients" ]; then
       DNS=$(echo $line | cut -d':' -f2 | sed -E 's, ,,g')
     fi
     if echo $line | grep "applications:" 2>&1 >/dev/null; then
-      APPS=$(echo $line | sed -E 's,.*applications: ,,g' | sed -E "s,'',,g" | sed -E "s,',\\\",g" | sed -E 's,None,\"None\",g' | jq -r 'keys | join(", ")')
-      FAIL=$(echo "${line}" | sed -E "s,',\\\",g" | sed -E 's,None,\"None\",g' | jq -r '[ .[] | if .result != "Ok" then .failedReason else .result end ] | join(", ")')
+      _apps=$(echo $line | sed -E 's,.*applications: ,,g' | sed -E "s,'',,g" | sed -E "s,',\\\",g" | sed -E 's,None,\"None\",g')
+      APPS=$(echo $_apps | jq -r 'keys | join(", ")')
+      FAIL=$(echo $_apps | jq -r '[ .[] | if .result != "Ok" then .failedReason else .result end ] | join(", ")')
     fi
     if echo $line | grep "serverClasses:" 2>&1 >/dev/null; then
       CLASSES=$(echo $line | sed -E 's,.*serverClasses: ,,g')
