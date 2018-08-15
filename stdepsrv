@@ -14,7 +14,7 @@ function out {
   read -ra _apps <<< "$APPS"
   read -ra _fail <<< "$FAIL"
   for i in "${_apps[@]}"; do
-    printf "%-36s | %-20s | %-20s | %s\n" "" "${_apps[$i]}" "${_fail[$i]}"
+    printf "%-36s | %-20s | %s" "" "${_apps[$i]}" "${_fail[$i]}"
   done
   CN=''; HN=''; DNS=''; APPS=''; CLASSES=''; FAIL=''
 }
