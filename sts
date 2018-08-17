@@ -1,0 +1,21 @@
+#!/bin/bash
+
+DIR=$(cd $(dirname $0); pwd -P)
+source ${DIR}/config.sh
+source ${DIR}/include.sh
+
+function usage {
+	echo "USAGE: $(basename $0) query"
+	exit 1
+}
+
+if [ $# -lt 1 ]; then
+	usage
+fi
+
+while read line
+do
+	line=$(echo $line | perl -pe 's/\b(\w+)\s*?=\s*([^=]*)(?=\s+\w+\s*=|$)/\\033[1;36m\1\\033[0m=\\033[1;32m\2\\033[0m/g')
+	#printf "%s\n\n" "$line"
+	echo -e "$line\n"
+done < <(${SPL} search "$1")
