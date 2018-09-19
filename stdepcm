@@ -1,0 +1,30 @@
+#!/bin/bash
+
+DIR=$(cd $(dirname $0); pwd -P)
+source ${DIR}/config.sh
+source ${DIR}/include.sh
+
+function usage {
+  echo "USAGE $(basename $0) add|remove|update app"
+  echo " -r: restart splunk on target"
+  exit 1
+}
+
+if [ $# -lt 2 ]; then
+  usage
+fi
+
+action="$1"
+app="$2"
+restart=0
+if [ "$4" == "-r" ]; then
+	restart=1
+fi
+
+if [ "${action}" == "add" -o "${action}" == "update" ]; then
+	scp -r ${SPLHOME}/etc/deployment-apps/${app} ${CLUSTERMASTER}:${SPLHOME}/etc/master-apps/.
+elif [ "${action}" == "remove" ]; then
+	ssh ${CLUSTERMASTER} "rm -rf ${SPLHOME}/etc/apps/${app}"
+else
+  usage
+fi

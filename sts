@@ -15,7 +15,7 @@ fi
 
 while read line
 do
-	line=$(echo $line | perl -pe 's/\b(\w+)\s*?=\s*([^=]*)(?=\s+\w+\s*=|$)/\\033[1;36m\1\\033[0m=\\033[1;32m\2\\033[0m/g')
-	#printf "%s\n\n" "$line"
-	echo -e "$line\n"
+	line=$(printf "$line" | perl -pe 's/\b(\w+)\s*?=\s*([^=]*)(?=\s+\w+\s*=|$)/\\033[1;36m\1\\033[0m=\\033[1;32m\2\\033[0m/g')
+	printf "$line"
+	printf "\n---\n"
 done < <(${SPL} search "$1")

@@ -21,3 +21,6 @@ CERTALT="DNS:$(hostname),DNS:$(hostname -f)"
 
 # Management Port
 MGMTPORT=8089
+
+# ClusterMaster for deployment to cluster master (stdepcm)
+CLUSTERMASTER=localhost

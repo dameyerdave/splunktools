@@ -4,31 +4,38 @@ DIR=$(cd $(dirname $0); pwd -P)
 source ${DIR}/config.sh
 source ${DIR}/include.sh
 
-LOGS=''
+if [ $# -gt 0 ]; then
+	for lf in $*
+	do
+		LOGS+=" ${SPLHOME}/var/log/splunk/${lf}.log"
+	done
+else
+	LOGS="${SPLHOME}/var/log/splunk/*.log"
+fi
 
-if [ -f ${SPLHOME}/var/log/splunk/splunkd_ui_access.log ]; then
-  LOGS+=" ${SPLHOME}/var/log/splunk/splunkd_ui_access.log"
-fi
-if [ -f ${SPLHOME}/var/log/splunk/web_access.log ]; then
-  LOGS+=" ${SPLHOME}/var/log/splunk/web_access.log"
-fi
-if [ -f ${SPLHOME}/var/log/splunk/splunkd_access.log ]; then
-  LOGS+=" ${SPLHOME}/var/log/splunk/splunkd_access.log"
-fi
-if [ -f ${SPLHOME}/var/log/splunk/web_service.log ]; then
-  LOGS+=" ${SPLHOME}/var/log/splunk/web_service.log"
-fi
-if [ -f ${SPLHOME}/var/log/splunk/conf.log ]; then
-  LOGS+=" ${SPLHOME}/var/log/splunk/conf.log"
-fi
-if [ -f ${SPLHOME}/var/log/splunk/splunkd_stderr.log ]; then
-  LOGS+=" ${SPLHOME}/var/log/splunk/splunkd_stderr.log"
-fi
-if [ -f ${SPLHOME}/var/log/splunk/notable_modalert.log ]; then
-  LOGS+=" ${SPLHOME}/var/log/splunk/notable_modalert.log"
-fi
-if [ -f ${SPLHOME}/var/log/splunk/splunkd.log ]; then
-  LOGS+=" ${SPLHOME}/var/log/splunk/splunkd.log"
-fi
+#if [ -f ${SPLHOME}/var/log/splunk/splunkd_ui_access.log ]; then
+#  LOGS+=" ${SPLHOME}/var/log/splunk/splunkd_ui_access.log"
+#fi
+#if [ -f ${SPLHOME}/var/log/splunk/web_access.log ]; then
+#  LOGS+=" ${SPLHOME}/var/log/splunk/web_access.log"
+#fi
+#if [ -f ${SPLHOME}/var/log/splunk/splunkd_access.log ]; then
+#  LOGS+=" ${SPLHOME}/var/log/splunk/splunkd_access.log"
+#fi
+#if [ -f ${SPLHOME}/var/log/splunk/web_service.log ]; then
+#  LOGS+=" ${SPLHOME}/var/log/splunk/web_service.log"
+#fi
+#if [ -f ${SPLHOME}/var/log/splunk/conf.log ]; then
+#  LOGS+=" ${SPLHOME}/var/log/splunk/conf.log"
+#fi
+#if [ -f ${SPLHOME}/var/log/splunk/splunkd_stderr.log ]; then
+#  LOGS+=" ${SPLHOME}/var/log/splunk/splunkd_stderr.log"
+#fi
+#if [ -f ${SPLHOME}/var/log/splunk/notable_modalert.log ]; then
+#  LOGS+=" ${SPLHOME}/var/log/splunk/notable_modalert.log"
+#fi
+#if [ -f ${SPLHOME}/var/log/splunk/splunkd.log ]; then
+#  LOGS+=" ${SPLHOME}/var/log/splunk/splunkd.log"
+#fi
 
 tail -F ${LOGS} | colorize_log
