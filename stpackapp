@@ -1,0 +1,39 @@
+#!/bin/bash
+
+DIR=$(cd $(dirname $0); pwd -P)
+source ${DIR}/config.sh
+source ${DIR}/include.sh
+
+function usage {
+	echo "USAGE: $(basename $0) app-name"
+	exit 1
+}
+
+if [ $# -lt 1 ]; then
+	usage
+fi
+
+APP="$1"
+
+# Remove lookup backups
+if [ -d ${SPLAPPS}/${APP}/lookups/lookup_file_backups ]; then
+    rm -rf ${SPLAPPS}/${APP}/lookups/lookup_file_backups
+fi
+
+# Move the lookup files to sample
+if [ -d ${SPLAPPS}/${APP}/lookups ]; then
+    while read lookup
+    do
+        mv ${lookup} ${lookup}.sample
+    done < <(find ${SPLAPPS}/${APP}/lookups -name "*.csv")
+fi
+
+tar -c --exclude .git --exclude .DS_Store -C ${SPLAPPS} -f - ${APP} | gzip >${APP}.tar.gz
+
+# Move the lookup samples back
+if [ -d ${SPLAPPS}/${APP}/lookups ]; then
+    while read lookup
+    do
+        mv ${lookup} ${lookup%.*}
+    done < <(find ${SPLAPPS}/${APP}/lookups -name "*.sample")
+fi
