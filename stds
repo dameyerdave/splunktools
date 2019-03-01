@@ -7,7 +7,7 @@ source ${DIR}/include.sh
 JQ="${DIR}/jq"
 
 function usage {
-  echo "USAGE $(basename $0) cli | edit | reload"
+  echo "USAGE $(basename $0) cli | edit | (reload | deploy)"
   exit 1
 }
 
@@ -67,7 +67,7 @@ elif [ "${action}" == "edit" ]; then
   else
     echo "Errors in config!"
   fi
-elif [ "${action}" == "reload" ]; then
+elif [ "${action}" == "reload" -o "${action}" == "deploy" ]; then
   if ${SPL} btool check; then
     ${SPL} reload deploy-server
   else
