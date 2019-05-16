@@ -1,0 +1,23 @@
+#!/bin/bash
+
+function usage {
+    echo "USAGE: $(basename $0) file(s)"
+}
+
+if [ $# -lt 1 ]; then
+    usage
+fi
+
+DIR=$(cd $(dirname $0); pwd -P)
+source ${DIR}/config.sh
+source ${DIR}/include.sh
+
+FILES="$*"
+
+for file in $(find ${FILES} -type f)
+do 
+    if [ "${file:0:1}" == "." ]; then
+        file="$(pwd -P)/${file}"
+    fi
+    ${SPLHOME}/bin/splunk cmd btprobe -d ${SPLHOME}/var/lib/splunk/fishbucket/splunk_private_db --file ${file} --reset
+done
