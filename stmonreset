@@ -2,6 +2,7 @@
 
 function usage {
     echo "USAGE: $(basename $0) file(s)"
+    exit 1
 }
 
 if [ $# -lt 1 ]; then

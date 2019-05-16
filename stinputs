@@ -1,0 +1,16 @@
+#!/bin/bash
+
+function usage {
+    echo "USAGE $(basename $0) input"
+    exit 1
+}
+
+if [ $# -lt 1 ]; then
+    usage
+fi
+
+DIR=$(cd $(dirname $0); pwd -P)
+source ${DIR}/config.sh
+source ${DIR}/include.sh
+
+${SPLHOME}/bin/splunk list inputstatus -input "$1"
