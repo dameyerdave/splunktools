@@ -1,0 +1,46 @@
+#!/bin/bash
+
+DIR=$(cd $(dirname $0); pwd -P)
+source ${DIR}/config.sh
+source ${DIR}/include.sh
+
+echo "Checking config"
+${SPLHOME}/bin/splunk btool check
+if [ $? -eq 0 ]; then
+    echo "Config ok"
+else
+    echo "Config not ok"
+fi
+
+echo ""
+echo "Checking for errors and warnings"
+grep -e "ERROR" -e "WARN" ${SPLHOME}/var/log/splunk/splunkd.log | sed -E 's,.*(ERROR|WARN),\1,' | sort | uniq -c | sort -rnk1
+
+echo ""
+echo "Checking for duplicate props/transforms/macros stanzas:"
+while read file 
+do 
+    #echo "## go through file $file" 
+    app=$(echo $file | sed -E 's,.*/apps/([^/]+)/.*,\1,')
+    conf=$(echo $file | sed -E 's,.*/([^/]+)$,\1,')
+    grep -sq -e "export=system" -e "export = system" ${SPLHOME}/etc/apps/${app}/metadata/default.meta ${SPLHOME}/etc/apps/${app}/metadata/local.meta
+    if [ $? -eq 0 ]; then
+    while read stanza
+    do 
+        stanza=$(echo $stanza | tr -d '[' | tr -d ']' | sed -e "s,[^[:alnum:]],_,g")
+        #echo "## Checking stanza $stanza"
+        #echo "${stanzas[${stanza}]}"
+        check=stanzas_${stanza}
+        check=$(printf '%s' "${!check}")
+        if [[ ! -z "$check" ]]; then
+            capp=$(echo $check | sed -E 's,.*/apps/([^/]+)/.*,\1,')
+            cconf=$(echo $check | sed -E 's,.*/([^/]+)$,\1,')
+            if [ "$capp" != "$app" -a "$cconf" == "$conf" ]; then
+                printf "%-50s %-40s %-40s %-20s\n" "[$stanza]" "$capp" "$app" "$conf"
+            fi
+        else
+            declare "stanzas_$stanza=$file"
+        fi
+    done < <(cat $file | grep "^\[")
+    fi
+done < <(find ${SPLAPPS} -type f -name transforms.conf -o -name props.conf -o -name macros.conf)
