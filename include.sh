@@ -1,5 +1,14 @@
 #!/bin/bash
 
+DIR=$(cd $(dirname $0); pwd -P)
+source ${DIR}/config.sh
+
+function splunk_login {
+    if [ -f ${DIR}/.auth ]; then
+        ${SPLHOME}/bin/splunk login -auth "$(cat ${DIR}/.auth)" 2>&1 >/dev/null
+    fi
+}
+
 RED='\033[0;31m'
 GRE='\033[0;32m'
 YEL='\033[0;33m'

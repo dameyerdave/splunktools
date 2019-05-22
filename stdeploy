@@ -22,6 +22,7 @@ if [ "$4" == "-r" ]; then
 	restart=1
 fi
 
+splunk_login
 if [ "${action}" == "add" -o "${action}" == "update" ]; then
 	scp -r ${SPLHOME}/etc/deployment-apps/${app} ${target}:${SPLHOME}/etc/apps/.
 	test ${restart} -eq 1 && ssh ${target} "${SPLHOME}/bin/splunk restart"

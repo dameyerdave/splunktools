@@ -19,6 +19,7 @@ if [ "$2" == "-w" ]; then
   watch=1
 fi
 
+splunk_login
 if [ "${action}" == "status" ]; then
   ${SPL} show cluster-status
 elif [ "${action}" == "validate" ]; then

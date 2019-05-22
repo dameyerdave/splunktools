@@ -13,4 +13,5 @@ DIR=$(cd $(dirname $0); pwd -P)
 source ${DIR}/config.sh
 source ${DIR}/include.sh
 
+splunk_login
 ${SPLHOME}/bin/splunk list inputstatus -input "$1"

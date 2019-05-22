@@ -13,6 +13,7 @@ if [ $# -lt 1 ]; then
 	usage
 fi
 
+splunk_login
 while read line
 do
 	line=$(printf "$line" | perl -pe 's/\b(\w+)\s*?=\s*([^=]*)(?=\s+\w+\s*=|$)/\\033[1;36m\1\\033[0m=\\033[1;32m\2\\033[0m/g')

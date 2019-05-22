@@ -31,6 +31,7 @@ fi
 action="$1"
 CN=''; HN=''; DNS=''; CLASSES=''; APPS=''; FAIL=''
 
+splunk_login
 if [ "${action}" == "cli" ]; then
   while read line
   do
