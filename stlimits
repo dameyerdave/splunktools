@@ -1,0 +1,8 @@
+#!/bin/bash
+
+DIR=$(cd $(dirname $0); pwd -P)
+source ${DIR}/config.sh
+source ${DIR}/include.sh
+
+SP=$(head -1 ${SPLHOME}/var/run/splunk/splunkd.pid)
+cat /proc/${SP}/limits
