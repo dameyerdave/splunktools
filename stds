@@ -13,7 +13,7 @@ function usage {
 
 function out {
   test "$CN" == "" && return
-  printf "\n\e[1;36m%-36s [ %s, %s ]\e[0m\n" "${CN}" "${HN}" "${DNS}"
+  printf "\n\e[1;36m%-36s [ %s, %s ] (%s)\e[0m\n" "${CN}" "${HN}" "${DNS}" "${MT}"
   printf "%-3s: %-20s\n" "CLS" "${CLASSES}"
   read -ra _apps <<< "$APPS"
   read -ra _appcls <<< "$APPCLS"
@@ -43,6 +43,9 @@ if [ "${action}" == "cli" ]; then
     fi
     if echo $line | grep "dns:" 2>&1 >/dev/null; then
       DNS=$(echo $line | cut -d':' -f2 | sed -E 's, ,,g')
+    fi
+    if echo $line | grep "utsname:" 2>&1 >/dev/null; then
+      MT=$(echo $line | cut -d':' -f2 | sed -E 's, ,,g')
     fi
     if echo $line | grep "applications:" 2>&1 >/dev/null; then
       _apps=$(echo $line | sed -E 's,.*applications: ,,g' | sed -E "s,'',,g" | sed -E "s,',\\\",g" | sed -E 's,None,\"None\",g')

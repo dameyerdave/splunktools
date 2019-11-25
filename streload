@@ -1,0 +1,7 @@
+#!/bin/bash
+
+DIR=$(cd $(dirname $0); pwd -P)
+source ${DIR}/config.sh
+source ${DIR}/include.sh
+
+${SPL} _internal call /services/apps/local/_reload
