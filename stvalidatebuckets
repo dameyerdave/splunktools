@@ -1,0 +1,26 @@
+#!/bin/bash
+
+DIR=$(cd $(dirname $0); pwd -P)
+source ${DIR}/config.sh
+source ${DIR}/include.sh
+
+index_paths=$(${SPL} list index | grep -e "^\t" | sed -E 's,(.*)/.*,\1,' | tr -d '\t' | uniq)
+
+for index_path in $index_paths
+do
+    for path in $(find ${index_path} -name db_*_*_* -o -name hot_v*_*)
+    do 
+        echo "Checking metadata in bucket ${path} ..." | colorize_log
+        ${SPL} cmd recover-metadata ${path} --validate 2>&1 | colorize_log
+    done
+    for tsidx_file in $(find ${index_path} -type f -name '*.tsidx')
+    do
+        output="$(${SPL} cmd tsidxprobe "$tsidx_file")"
+        tsidxprobe_exit_code=$?
+        if [ $tsidxprobe_exit_code != 0 ]; then
+            echo tsidxprobe "ERROR: $tsidx_file gave an error; return code: $tsidxprobe_exit_code" | colorize_log
+            echo "$output"
+        fi
+    done
+done
+
