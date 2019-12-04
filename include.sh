@@ -19,7 +19,7 @@ function colorize_log {
 	do
 		if echo $line | grep "ERROR" 2>&1 > /dev/null; then
 			echo -e "${RED}${line}${NC}"
-		elif echo $line | grep "WARN" 2>&1 > /dev/null; then
+		elif echo $line | grep -e "WARN" -e "Cannot find" -e "Please check" 2>&1 > /dev/null; then
 			echo -e "${YEL}${line}${NC}"
 		else
 			echo -e "${GRE}${line}${NC}"

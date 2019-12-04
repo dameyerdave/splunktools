@@ -1,0 +1,20 @@
+#!/bin/bash
+
+DIR=$(cd $(dirname $0); pwd -P)
+source ${DIR}/config.sh
+source ${DIR}/include.sh
+
+if [ $# -gt 0 ]; then
+    IDX="$*"
+else
+    IDX="*"
+fi
+
+if [ "${IDX}" == "*" ]; then
+    ${SPL} fsck repair --all-buckets-all-indexes 2>&1 | colorize_log
+else
+    for idx in ${IDX}
+    do
+        ${SPL} fsck repair --all-buckets-one-index --index-name=${idx} 2>&1 | colorize_log
+    done
+fi
