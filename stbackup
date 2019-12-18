@@ -1,0 +1,16 @@
+#!/bin/bash
+
+DIR=$(cd $(dirname $0); pwd -P)
+source ${DIR}/config.sh
+source ${DIR}/include.sh
+
+BF=${BACKUPDIR}/splunk_backup_$(date +%Y-%m-%d-%H:%M:%S).tar.gz
+START=$(date +%s)
+echo "Creating Splunk backup to ${BF}..."
+cd ${SPLHOME}/etc
+FL=$(find . -name "*.conf" -o -name "*.csv" | xargs)
+NF=$(echo ${FL} | wc -w | tr -d ' ')
+tar -czf ${BF} ${FL}
+END=$(date +%s)
+TOOK=$(expr $END - $START)
+echo "Done. ${NF} files took $TOOK seconds."

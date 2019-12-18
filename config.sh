@@ -24,3 +24,6 @@ MGMTPORT=8089
 
 # ClusterMaster for deployment to cluster master (stdepcm)
 CLUSTERMASTER=localhost
+
+# Directory where the backup resists
+BACKUPDIR=/var/tmp
