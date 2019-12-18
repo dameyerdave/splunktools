@@ -4,13 +4,27 @@ DIR=$(cd $(dirname $0); pwd -P)
 source ${DIR}/config.sh
 source ${DIR}/include.sh
 
-BF=${BACKUPDIR}/splunk_backup_$(date +%Y-%m-%d-%H:%M:%S).tar.gz
+if [ "$1" = "-f" ]; then
+    BF=${BACKUPDIR}/splunk_full_backup_$(date +%Y-%m-%d-%H%M%S).tar.gz
+else
+    BF=${BACKUPDIR}/splunk_backup_$(date +%Y-%m-%d-%H%M%S).tar.gz
+fi
 START=$(date +%s)
 echo "Creating Splunk backup to ${BF}..."
 cd ${SPLHOME}/etc
-FL=$(find . -name "*.conf" -o -name "*.csv" | xargs)
-NF=$(echo ${FL} | wc -w | tr -d ' ')
-tar -czf ${BF} ${FL}
+if [ "$1" = "-f" ]; then
+    FL="*"
+else
+    FL=$(find . -name "*.conf" -o -name "*.csv" -o -name "*.xml" | xargs)
+fi
+EL=$(find /etc -name "*splunk*" 2>/dev/null | xargs)
+echo "$(crontab -l 2>&1)" > crontab.bkp
+NF=$(echo "${FL} ${EL} ct" | wc -w | tr -d ' ')
+tar -czf ${BF} ${FL} ${EL} crontab.bkp 2>/dev/null
 END=$(date +%s)
 TOOK=$(expr $END - $START)
-echo "Done. ${NF} files took $TOOK seconds."
+if [ "$1" = "-f" ]; then
+    echo "Done. Full backup took $TOOK seconds."
+else
+    echo "Done. ${NF} files took $TOOK seconds."
+fi
